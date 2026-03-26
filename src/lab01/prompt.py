@@ -3,8 +3,7 @@ from openai import OpenAI
 from src.utils import get_openai_api_key
 
 
-def chat(messages):
-    client = OpenAI(api_key=get_openai_api_key())
+def chat(client, messages):
     response = client.chat.completions.create(
         model='gpt-5.4-mini',
         temperature=0.9,
@@ -14,12 +13,14 @@ def chat(messages):
 
 
 def main():
+    client = OpenAI(api_key=get_openai_api_key())
+
     # no prompting: messages에 assistant 프롬프트를 제공하지 않는 것.
     no_prompt_msg = [
         {'role': 'system', 'content': '유치원생처럼 대답해줘.'},
         {'role': 'user', 'content': '오리'}
     ]
-    chat(messages=no_prompt_msg)
+    chat(client=client, messages=no_prompt_msg)
 
     print('-' * 30)
 
@@ -31,7 +32,7 @@ def main():
         {'role': 'assistant', 'content': '짹짹'},  # one-shot prompting
         {'role': 'user', 'content': '오리'},
     ]
-    chat(messages=one_shot_prompt_msg)
+    chat(client=client, messages=one_shot_prompt_msg)
 
     print('-' * 30)
 
@@ -46,7 +47,7 @@ def main():
         {'role': 'assistant', 'content': '음머'},
         {'role': 'user', 'content': '오리'},
     ]
-    chat(messages=few_shot_prompt_msg)
+    chat(client=client, messages=few_shot_prompt_msg)
 
 
 if __name__ == '__main__':
