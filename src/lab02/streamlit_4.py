@@ -10,6 +10,17 @@ def initialize_client():
     return client
 
 
+def get_gpt_response(client, messages):
+    # OpenAI client를 사용해서 메시지를 보내고 생성된 텍스트를 응답받음.
+    response = client.chat.completions.create(
+        model='gpt-5.4-mini',
+        messages=messages,
+        temperature=0.9
+    )
+    return response.choices[0].message.content
+
+
+
 def main():
     client = initialize_client()
 
@@ -43,6 +54,21 @@ def main():
         # 사용자 아이콘, 사용자가 입력한 내용을 채팅 메시지 위젯으로 출력
         st.chat_message('user').markdown(user_input)
 
+        # 사용자가 입력한 내용을 dict로 만들어서 st.session_state에 저장하고 있는 messages 리스트에 추가(append)
+        st.session_state.messages.append(
+            {'role': 'user', 'content': user_input}
+        )
+
+        # st.session_state가 가지고 있는 메시지 리스트를 GPT 서버로 보내서 생성된 답변을 응답으로 받음.
+        answer = get_gpt_response(client, st.session_state.messages)
+
+        # AI의 답변을 채팅 메시지 위젯으로 출력
+        st.chat_message('assistant').markdown(answer)
+
+        # AI의 답변을 st.session_state의 메시지 리스트에 'assistant' 역할로 추가.
+        st.session_state.messages.append(
+            {'role': 'assistant', 'content': answer}
+        )
 
 
 if __name__ == '__main__':
