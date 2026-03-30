@@ -22,6 +22,10 @@ def main():
             full_text += '\n' + '-' * 50 + '\n'  # 페이지 구분을 위한 문자열
         print(full_text)
 
+    # pdf에서 추출한 텍스트를 txt 파일에 저장
+    with open(txt_file, mode='w', encoding='utf-8') as f:
+        f.write(full_text)
+
 
 if __name__ == '__main__':
     main()
