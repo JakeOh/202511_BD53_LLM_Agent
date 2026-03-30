@@ -19,8 +19,12 @@ def main():
             clip = (0, header_height, rect.width, rect.height - footer_height)
             # 잘려진 영역(clip) 안에서만 텍스트 추출
             text = page.get_text(clip=clip)
-            print(text)
-            print('\n' + '-' * 50 + '\n')
+            full_text += text  # clip 안에서 추출한 텍스트를 full_text에 append
+            full_text += '\n' + '-' * 50 + '\n'  # 페이지를 구분하기 위한 용도
+
+    # clips 안에서 추출한 모든 텍스트를 txt 파일에 씀.
+    with open(txt_file, mode='w', encoding='utf-8') as f:
+        f.write(full_text)
 
 
 if __name__ == '__main__':
