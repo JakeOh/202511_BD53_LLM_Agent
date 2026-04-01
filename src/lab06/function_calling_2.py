@@ -34,6 +34,32 @@ def main():
         { 'role': 'system', 'content': '너는 유능한 AI 비서야.' }
     ]
 
+    # 도구 정의 목록
+    tools = [
+        {
+            'type': 'function',
+            'function': {
+                # 함수 이름
+                'name': 'get_current_time',
+                # 함수 설명 - 기능, 아규먼트, 리턴.
+                'description': '해당 타임존의 날짜/시간 정보를 %Y-%m-%d %H:%M:%S 형식의 문자열로 반환.',
+                # 함수 파라미터 정의
+                'parameters': {
+                    'type': 'object',  # JSON 객체
+                    'properties': {
+                        # 함수의 파라미터 이름을 키로 사용.
+                        'timezone': {
+                            'type': 'string',  # 파라미터 타입(아규먼트의 데이터 타입)
+                            'description': '현재 날짜/시간 정보를 알고 싶은 타임존 문자열(예: Asia/Seoul). pytz.all_timezones에서 정의된 문자열들을 사용함.'
+                        },
+                    },
+                    # 필수 파라미터(required argument, 반드시 전달해야만 하는 아규먼트) 리스트.
+                    'required': ['timezone'],
+                },
+            },
+        },
+    ]
+
     while True:  # 무한 반복문
         if user_prompt := input('User>> '):  # 사용자가 질문을 입력했을 때
             if user_prompt.strip() == '':  # 사용자가 입력한 내용(문자열)이 없을 때
@@ -41,6 +67,18 @@ def main():
             if user_prompt.strip() == '/exit':
                 print('Goodbye~')
                 break  # 반복문을 종료
+
+            # 사용자가 입력한 내용을 메시지에 추가
+            messages.append({ 'role': 'user', 'content': user_prompt })
+            # 도구 목록과 함께 메시지를 LLM 모델에게 전송
+            response = get_gpt_response(messages, tools)
+
+            # TODO: LLM 모델이 응답한 메시지에 tool_calls(도구 호출)가 포함된 경우, 처리할 코드.
+
+            # GPT의 답변 컨텐트만 출력
+            print('GPT>>', response.choices[0].message.content)
+            # multi-turn 대화를 하기 위해서(이전의 user-assistant 대화 내용을 저장하기 위해서) AI의 답변을 메시지에 추가.
+            messages.append({ 'role': 'assistant', 'content': response.choices[0].message.content })
 
 
 if __name__ == '__main__':
