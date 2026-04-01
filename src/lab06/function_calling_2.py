@@ -1,3 +1,4 @@
+import json
 from datetime import datetime
 import pytz  # 타임존 관련 모듈
 
@@ -73,12 +74,35 @@ def main():
             # 도구 목록과 함께 메시지를 LLM 모델에게 전송
             response = get_gpt_response(messages, tools)
 
-            # TODO: LLM 모델이 응답한 메시지에 tool_calls(도구 호출)가 포함된 경우, 처리할 코드.
+            # LLM 모델이 응답한 메시지에 tool_calls(도구 호출)가 포함된 경우, 처리할 코드.
+            ai_message = response.choices[0].message
+            if tool_calls := ai_message.tool_calls:  # content가 없고, function calling을 요청한 경우
+                # 이전 모든 대화 내용을 저장해야 하기 때문에
+                messages.append(ai_message)
+                # LLM 모델이 텍스트를 생성하기 위해서 도구 호출이 여러개 필요하다고 판단하면
+                # tool_calls 리스트에 함수 호출 순서대로 객체들을 전달함.
+                for tc in tool_calls:  # tool_calls 리스트에 포함된 모든 function calling에 대해서 반복.
+                    tool_call_id = tc.id
+                    function_name = tc.function.name
+                    arguments = json.loads(tc.function.arguments)  # JSON 문자열을 dict 객체로 만듦.
+                    if function_name == 'get_current_time':
+                        # 함수 호출 결과를 메시지 리스트에 추가
+                        messages.append(
+                            {
+                                'role': 'tool',
+                                'tool_call_id': tool_call_id,
+                                'content': get_current_time(arguments['timezone'])
+                            }
+                        )
+
+                # 도구 호출의 결과들을 메시지로 다시 LLM 모델에게 전송함.
+                response = get_gpt_response(messages, tools)
+                ai_message = response.choices[0].message
 
             # GPT의 답변 컨텐트만 출력
-            print('GPT>>', response.choices[0].message.content)
+            print('GPT>>', ai_message.content)
             # multi-turn 대화를 하기 위해서(이전의 user-assistant 대화 내용을 저장하기 위해서) AI의 답변을 메시지에 추가.
-            messages.append({ 'role': 'assistant', 'content': response.choices[0].message.content })
+            messages.append({ 'role': 'assistant', 'content': ai_message.content })
 
 
 if __name__ == '__main__':
