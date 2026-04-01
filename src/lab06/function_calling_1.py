@@ -42,8 +42,31 @@ def main():
 
     # LLM 모델에게 메시지와 함께 우리가 가지고 있는 도구 목록을 제공.
     response = get_gpt_response(messages, tools)
+    ai_message = response.choices[0].message
+    # tool_calls = ai_message.tool_calls
+    # if tool_calls:
+    #     pass
+    if tool_calls := ai_message.tool_calls:  # LLM 모델이 응답으로 보낸 메시지 안에 도구 호출 요청이 있으면
+        tool_call_id = tool_calls[0].id
+        function_name = tool_calls[0].function.name
+        if function_name == 'get_current_time':  # 도구 호출에서 사용할 함수 이름이 get_current_time 이면
+            # 1. 이전의 모든 메시지를 포함시킴(assistant가 도구 호출을 요청한 메시지를 포함시킴).
+            messages.append(ai_message)
+            # 2. 도구 호출 결과(함수 호출 리턴값)를 포함하는 메시지를 추가.
+            messages.append(
+                {
+                    'role': 'tool',
+                    'tool_call_id': tool_call_id,
+                    'content': get_current_time()
+                }
+            )
+            # 3. 도구 호출(function calling) 결과를 포함하는 메시지를 다시 LLM 모델에게 전송
+            response = get_gpt_response(messages, tool_calls)
+
+            # 최종 LLM 모델의 답변
+            print('GPT>>>')
+            print(response.choices[0].message.content)
 
 
 if __name__ == '__main__':
     main()
-    get_current_time()
