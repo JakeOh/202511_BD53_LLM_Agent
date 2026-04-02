@@ -108,7 +108,7 @@ tools = [
 ]
 
 # 함수 이름을 key로 하고, 함수 객체를 value로 갖는 dict 선언.
-function_list ={
+function_list = {
     'get_current_time': get_current_time,
     'get_yf_info': get_yf_info,
     'get_yf_history': get_yf_history,
