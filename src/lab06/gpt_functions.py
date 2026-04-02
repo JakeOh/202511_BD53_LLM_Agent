@@ -107,12 +107,31 @@ tools = [
     },
 ]
 
+# 함수 이름을 key로 하고, 함수 객체를 value로 갖는 dict 선언.
+function_list ={
+    'get_current_time': get_current_time,
+    'get_yf_info': get_yf_info,
+    'get_yf_history': get_yf_history,
+    'get_yf_recommendations': get_yf_recommendations,
+}
+
+
+def exec_function(fn_name, args):
+    """fn_name 이름의 함수를 찾아서 args를 아규먼트로 전달하고 실행한 결과값을 리턴.
+    fn_name은 문자열 타입. args는 dict 타입."""
+    return function_list[fn_name](**args)
+
 
 def main():
     # print(get_current_time('Asia/Seoul'))
     # print(get_yf_info('MSFT'))
     # print(get_yf_history(ticker='MSFT', period='3d'))
-    print(get_yf_recommendations('MSFT'))
+    # print(get_yf_recommendations('MSFT'))
+    result = exec_function('get_current_time', {'timezone': 'Asia/Seoul'})
+    print(result)
+
+    result = exec_function('get_yf_history', {'ticker': 'AAPL', 'period': '5d'})
+    print(result)
 
 
 if __name__ == '__main__':
