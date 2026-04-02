@@ -45,3 +45,17 @@ introduce(**ssam)  # unpacking: name='오쌤', age=20
 
 test = {'age': 11, 'name': '테스트'}
 introduce(**test)  # unpacking: age=11, name='테스트'
+# introduce(age=11, name='테스트') 문장과 동일.
+
+# Unpacking: 함수의 아규먼트로 객체를 전달할 때 사용 문법
+# *list_name, *tuple_name: 가변길이 인수(variable-length arguments)로 전달.
+# **dict_name: 가변길이 키워드 인수(variable-length keyword arguments)로 전달.
+print('a', 'ab', 'abc')
+print(*['홍길동', '허균'])  # print('홍길동', '허균') 문장과 동일
+
+
+def test1(*args):
+    pass
+
+def test2(**kwargs):
+    pass
